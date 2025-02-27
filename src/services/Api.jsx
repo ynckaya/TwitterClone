@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://kiwitter-node-77f5acb427c1.herokuapp.com";
+const API_URL = "API_URL";
 
 const api = axios.create({
   baseURL: API_URL,
