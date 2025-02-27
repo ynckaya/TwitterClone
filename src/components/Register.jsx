@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useAuth } from "../context/AuthContext";
 import { registerUser } from "../services/api";
 import { useHistory } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Register = () => {
   const { register, handleSubmit } = useForm();
@@ -11,9 +12,12 @@ const Register = () => {
 
   const onSubmit = async (data) => {
     try {
-      const token = await registerUser(data);
-      login(token.token);
-      history.push("/");
+      const response = await registerUser(data);
+      login(response.token);
+      toast.success("Kayıt başarılı! Ana sayfaya yönlendiriliyorsunuz...");
+      setTimeout(() => {
+        history.push("/");
+      }, 3000);
     } catch (error) {
       console.error("Kayıt hatası:", error);
     }

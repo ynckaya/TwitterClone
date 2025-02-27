@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { useAuth } from "../context/AuthContext";
 import { loginUser } from "../services/api";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
-import { jwtDecode } from "jwt-decode";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const {
@@ -18,9 +18,12 @@ const Login = () => {
 
   const onSubmit = async (data) => {
     const response = await loginUser(data);
-    const decoded = jwtDecode(response.token);
-    login(decoded);
-    history.push("/");
+    login(response.token);
+    toast.success("Giriş başarılı! Ana sayfaya yönlendiriliyorsunuz...");
+
+    setTimeout(() => {
+      history.push("/");
+    }, 3000);
   };
 
   return (

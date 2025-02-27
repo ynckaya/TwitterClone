@@ -1,15 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useTweets } from "../hooks/useTweets";
 import { useAuth } from "../context/AuthContext";
 import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faThumbsUp, faHeart } from "@fortawesome/free-solid-svg-icons";
+import { toast } from "react-toastify";
 
 const TWEETS_PER_PAGE = 5;
 
 const Home = () => {
   const { user } = useAuth();
-  const { tweets, isLoading, error, createTweet } = useTweets();
+  const { tweets, isLoading, error, createTweet, like } = useTweets();
 
-  const [visibleCount, setVisibleCount] = useState(TWEETS_PER_PAGE); // Gösterilen twit sayısı
+  const [visibleCount, setVisibleCount] = useState(TWEETS_PER_PAGE);
 
   const {
     register,
@@ -22,11 +26,23 @@ const Home = () => {
   if (error) return <p>Hata oluştu!</p>;
 
   const onSubmit = (data) => {
-    createTweet.mutate({ content: data.tweet });
+    const newTwitData = {
+      author_id: user.id,
+      content: data.tweet,
+      replyTo: null,
+    };
+    createTweet.mutate(newTwitData);
     reset();
   };
 
+  const handleLike = (tweetId) => {
+    if (!user) {
+      toast.error("Beğenmek için giriş yapmalısınız!");
+      return;
+    }
 
+    like.mutate({ tweetId, userId: user.id });
+  };
 
   return (
     <div className="max-w-lg mx-auto mt-5">
@@ -44,10 +60,17 @@ const Home = () => {
             key={tweet.id}
             className="max-w-lg rounded overflow-hidden shadow-lg p-4 mb-4"
           >
-            <p className="font-bold text-xl mb-2">{tweet.nickname}</p>
+            <p className="font-bold text-xl mb-2">
+            <Link to={`/profile/${tweet.nickname}`} className="flex gap-2 pt-1">{tweet.nickname}</Link>
+              </p>
             <p>{tweet.content}</p>
             <div className="flex justify-between items-center mt-2 text-sm text-gray-400">
-              <span>❤️ {tweet.likes}</span>
+              <span>
+                <button onClick={() => handleLike(tweet.id)} className="mr-2">
+                  <FontAwesomeIcon icon={faHeart} className="text-base"/>
+                </button>
+                {tweet.likes}
+              </span>
               <span>{new Date(tweet.createdat).toLocaleString()}</span>
             </div>
           </div>

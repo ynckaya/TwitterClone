@@ -25,14 +25,26 @@ export const fetchTweets = async () => {
 };
 
 export const postTweet = async (tweetData) => {
-  const response = await api.post("/twits", tweetData);
+  const response = await api.post("/twits", tweetData, {
+    headers: {
+      Authorization: localStorage.getItem("token"),
+    },
+  });
   return response.data;
 };
 
-export const likeTweet = async (twitId) => {
-  const response = await api.post(`/twits/${twitId}/likes`);
+export const likeTweet = async (data) => {
+  const response = await api.post(`/twits/${data.tweetId}/likes`,
+    { user_id: String(data.userId) },
+    {
+      headers: {
+        Authorization: localStorage.getItem("token"),
+      },
+    }
+  );
   return response.data;
 };
+
 
 export const deleteTweet = async (tweetId) => {
   const response = await api.delete(`/twits/${tweetId}`);

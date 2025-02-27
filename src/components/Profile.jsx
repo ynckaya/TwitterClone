@@ -1,28 +1,37 @@
 import React from "react";
+import { useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTweets } from "../hooks/useTweets";
 
 const Profile = () => {
   const { user } = useAuth();
-  const { tweets } = useTweets();
+  const { nickname } = useParams();
+  const { tweets, isLoading, error } = useTweets();
 
-  const userTweets = tweets?.filter((tweet) => tweet.userId === user?.id);
+  // Eğer URL'de `nickname` varsa onu kullan, yoksa giriş yapan kullanıcının nickname'ini kullan
+  const currentNickname = nickname || user?.nickname;
+  console.log(currentNickname);
+
+  if (!currentNickname) return <p>Kullanıcı bulunamadı!</p>;
+  if (isLoading) return <p>Yükleniyor...</p>;
+  if (error) return <p>Hata oluştu!</p>;
+
+
+  const userTweets = tweets.filter((tweet) => tweet.nickname === currentNickname);
 
   return (
-    <div className="max-w-2xl mx-auto mt-5">
-      <h2 className="text-xl font-bold">{user?.nickname}'in twitleri</h2>
-      {userTweets?.map((tweet) => (
-        <div
-          key={tweet.id}
-          className="bg-white shadow-md rounded-lg p-4 mb-4 border border-gray-300"
-        >
-          <p className="text-gray-800">{tweet.content}</p>
-          <div className="flex justify-between items-center mt-2 text-sm text-gray-600">
-            <span>❤️ {tweet.likes}</span>
-            <span>{new Date(tweet.createdAt).toLocaleString()}</span>
+    <div className="max-w-lg mx-auto mt-5">
+      <h2 className="text-xl font-bold mb-4">{currentNickname} adlı kullanıcının twitleri</h2>
+      {userTweets.length === 0 ? (
+        <p>Bu kullanıcı henüz hiç twit atmamış.</p>
+      ) : (
+        userTweets.map((tweet) => (
+          <div key={tweet.id} className="max-w-lg rounded shadow-lg p-4 mb-4">
+            <p>{tweet.content}</p>
+            <div className="text-sm text-gray-500">{new Date(tweet.createdat).toLocaleString()}</div>
           </div>
-        </div>
-      ))}
+        ))
+      )}
     </div>
   );
 };
